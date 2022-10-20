@@ -15,7 +15,7 @@ Scenario("flight search", async ({ I }) => {
     I.click(`//td[@data-month="9"]//a[text()="27"]`);
     I.see('1 Adult');
     I.selectOption('//label[contains(.,"Currency")]/../..//select', 'AED');
-    console.log("hi");
+    console.log("Rajesh chay");
 
 
 
