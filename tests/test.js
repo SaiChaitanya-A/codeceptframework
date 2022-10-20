@@ -17,6 +17,7 @@ Scenario("flight search", async ({ I }) => {
     I.selectOption('//label[contains(.,"Currency")]/../..//select', 'AED');
     console.log("Rajesh chay");
     console.log('chay');
+    console.log('chay1');
 
 
 
