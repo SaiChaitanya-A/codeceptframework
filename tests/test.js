@@ -18,6 +18,7 @@ Scenario("flight search", async ({ I }) => {
     console.log("Rajesh chay");
     console.log('chay');
     console.log('chay1');
+    console.log('chaydd');
 
 
 
