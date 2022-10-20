@@ -25,12 +25,27 @@ exports.config = {
       require: './helpers/flightbooking_helpers.js',
     },
 
+    HROne: {
+      require: './helpers/HROne_helpers.js',
+    },
+
     
   },
   include: {
     I: './steps_file.js',
-    input:'./lib/flightbookingfuntions.js',
-    flightbookingpage: './pages/flightbookingpage.js'
+    flightPage: './pages/flight.js',
+    hrone: './pages/hronepage.js',
+    
   },
-  name: 'My_Codecept'
+  name: 'My_Codecept',
+  
+  plugins:{
+    allure: {
+
+      enabled: true,
+
+      outputDir: "./output/allure/allure-results",
+
+    },
+  }
 }

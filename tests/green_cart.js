@@ -5,7 +5,7 @@ const { locator } = require("codeceptjs");
 const should = require("chai").should();
 //const chance = require("chance").Chance();
 
-Feature("Buy Vegetables");
+Feature("Buy Vegetables Using GREENKART Website");
 
 Scenario("Verify URL Navigation", async ({ I }) => {
 
@@ -15,9 +15,33 @@ Scenario("Verify URL Navigation", async ({ I }) => {
     let viewTitle = await I.grabTitle();
     console.log(viewTitle);
     viewTitle.should.eql("GreenKart - veg and fruits kart");
+
 }).tag('sce1');
 
-Scenario("Verify Search Functionality And Add Vegetables To Cart", async ({ I }) => {
+//Searching with different letters using DataTable
+
+let searchkeyletters = new DataTable(['searchletters']); //
+    searchkeyletters.add(["mu"]); // searching with letters
+    searchkeyletters.add(["ca"]);
+    searchkeyletters.add(["be"]);
+    searchkeyletters.add(["on"]);
+    searchkeyletters.add(["to"]);
+    searchkeyletters.add(["gr"]);
+    searchkeyletters.add(["ap"]);
+    searchkeyletters.add(["co"]);
+    searchkeyletters.add(["ra"]);
+    searchkeyletters.add(["ma"]);
+
+Data(searchkeyletters).Scenario("Validate Search Functionality with different Keyletters", async ({ I, current }) => {
+
+    I.amOnPage(process.env.GREEN_KART);
+
+    let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", current.searchletters);
+
+}).tag('sce2');
+
+
+Scenario("Validate Search Functionality with Keyletters and Add Vegetables to Cart", async ({ I }) => {
 
     //Search for vegetables with key (Intial letters)
 
@@ -27,13 +51,16 @@ Scenario("Verify Search Functionality And Add Vegetables To Cart", async ({ I })
     console.log(searchItem.length);
     I.addToCart(["Brocolli - 1 Kg", "Brinjal - 1 Kg"]);
     I.wait(6);
-}).tag('sce2');
 
-Scenario("Verify Cart Info", async ({ I }) => {
+}).tag('sce3');
+
+
+Scenario("Verify Cart Info Before Adding Vegetables", async ({ I }) => {
 
     //Navigate to portal and search vegetables with key letter
 
     I.amOnPage(process.env.GREEN_KART);
+
     let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
 
     //Validating cartinfo before adding products
@@ -43,32 +70,42 @@ Scenario("Verify Cart Info", async ({ I }) => {
     inCart = await I.retriveCartInfo("Price");
     parseInt(inCart).should.eql(0);
 
-}).tag('sce3');
+}).tag('sce4');
 
 
-let searchkeyword = new DataTable(['searchletters']); //
-   // searchkeyword.add(["cu"]); // searching with letters
-   // searchkeyword.add(["ap"]);
-    searchkeyword.add(["br"]);
-
-Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async ({ I, current }) => {
-
-
-    //Navigate to portal and search vegetables with key letter
+Scenario("Validate Cart Info After Adding Vegetables", async ({ I }) => {
 
     I.amOnPage(process.env.GREEN_KART);
-   // let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
 
-    let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", current.searchletters);
-
-    //Validating cartinfo before adding products
+    let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
 
     let inCart = await I.retriveCartInfo("Items");
     parseInt(inCart).should.eql(0);
     inCart = await I.retriveCartInfo("Price");
     parseInt(inCart).should.eql(0);
 
-    //Validating Cartinfo after adding products
+    //Validating Cartinfo AFTER adding products
+
+    I.addToCart(searchItem);
+    inCart = await I.retriveCartInfo("Items");
+    searchItem.length.should.eql(parseInt(inCart));
+    inCart = await I.retriveCartInfo("Price");
+    let total = await I.totalPrice();
+    parseInt(inCart).should.eql(total);
+
+}).tag('sce5');
+
+
+Scenario("Validate Proceed To Checkout by Comapring Cart Info", async ({ I }) => {
+
+    I.amOnPage(process.env.GREEN_KART);
+
+    let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
+
+    let inCart = await I.retriveCartInfo("Items");
+    parseInt(inCart).should.eql(0);
+    inCart = await I.retriveCartInfo("Price");
+    parseInt(inCart).should.eql(0);
 
     I.addToCart(searchItem);
     inCart = await I.retriveCartInfo("Items");
@@ -78,6 +115,30 @@ Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async (
     parseInt(inCart).should.eql(total);
 
     //Tap on cart-icon for proceed to checkout
+
+    I.proceedToCheckout();
+    I.clickButton('PROCEED TO CHECKOUT');
+
+}).tag('sce6');
+
+
+Scenario("Verify Grid Data and Place Order Info Without Applying Promo Code", async ({ I }) => {
+
+    I.amOnPage(process.env.GREEN_KART);
+
+    let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
+
+    let inCart = await I.retriveCartInfo("Items");
+    parseInt(inCart).should.eql(0);
+    inCart = await I.retriveCartInfo("Price");
+    parseInt(inCart).should.eql(0);
+
+    I.addToCart(searchItem);
+    inCart = await I.retriveCartInfo("Items");
+    searchItem.length.should.eql(parseInt(inCart));
+    inCart = await I.retriveCartInfo("Price");
+    let total = await I.totalPrice();
+    parseInt(inCart).should.eql(total);
 
     I.proceedToCheckout();
     I.clickButton('PROCEED TO CHECKOUT');
@@ -95,14 +156,10 @@ Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async (
     (await I.retriveDataFromGrid('Total', 1)).should.eql("120");
     (await I.retriveDataFromGrid('Total', 2)).should.eql("35");
 
-
-    
     let productsWrapper = await I.grabTextFrom('//div[@class="products-wrapper"]/div[@class="products"]//div');
     console.log(productsWrapper);
     let productsWrapperX=productsWrapper.trim();
-
     console.log(productsWrapperX);
-    return;
 
     if (productsWrapper.includes(":")) {
         productsWrapper1 = productsWrapper.split(":");
@@ -114,9 +171,6 @@ Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async (
        await productsWrapper1[3].split(" ");
        console.log(x[3]);
 
-
-
-
     }
 
     const placeOrderInfo = {
@@ -126,16 +180,11 @@ Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async (
         TotalAfterDiscount: 155
     }
 
-
-    
-
-
-
     parseInt(await I.orderInfo("Total Amount")).should.eql(placeOrderInfo.TotalAmount);
     (await I.orderInfo("Discount")).should.eql(placeOrderInfo.Discount);
     parseInt(await I.orderInfo("Total After Discount")).should.eql(placeOrderInfo.TotalAfterDiscount);
 
-    //To proceed order
+    //To place order
 
     I.see('Place Order');
     I.clickButton("Place Order");
@@ -157,25 +206,20 @@ Data(searchkeyword).Scenario("Verify Cart Info And To Proceed Checkout", async (
     (await I.grabCurrentUrl(endgreet)).should.not.eql(process.env.GREEN_KART);
     I.wait(2);
 
-}).tag('sce4');
+}).tag('sce7');
 
 
 
-Scenario("Verify Cart Info And To Proceed Checkout Using Promocode", async ({ I }) => {
+Scenario("Validate Cart Info and To Proceed Checkout Using Promocode", async ({ I }) => {
 
-    //Navigate to portal and search vegetables with key letter
 
     I.amOnPage(process.env.GREEN_KART);
     let searchItem = await I.inputByPlaceHolder("Search for Vegetables and Fruits", "br");
-
-    //Validating cartinfo before adding products
 
     let inCart = await I.retriveCartInfo("Items");
     parseInt(inCart).should.eql(0);
     inCart = await I.retriveCartInfo("Price");
     parseInt(inCart).should.eql(0);
-
-    //Validating cartinfo after adding products
 
     I.addToCart(searchItem);
     inCart = await I.retriveCartInfo("Items");
@@ -184,11 +228,8 @@ Scenario("Verify Cart Info And To Proceed Checkout Using Promocode", async ({ I 
     let total = await I.totalPrice();
     parseInt(inCart).should.eql(total);
 
-    //Tap on cart-icon for proceed to checkout
-
     I.proceedToCheckout();
     I.clickButton('PROCEED TO CHECKOUT');
-
 
     //Verifying cart & place order info with grid data after applying PROMOCODE
 
@@ -206,7 +247,6 @@ Scenario("Verify Cart Info And To Proceed Checkout Using Promocode", async ({ I 
         Discount: "10%",
         TotalAfterDiscount: 139.5
     }
-
 
     parseInt(await I.orderInfo("Total Amount")).should.eql(afterApplyingPromoCodePlaceOrderInfo.TotalAmount);
     (await I.orderInfo("Discount")).should.eql(afterApplyingPromoCodePlaceOrderInfo.Discount);
@@ -236,12 +276,10 @@ Scenario("Verify Cart Info And To Proceed Checkout Using Promocode", async ({ I 
     I.wait(2);
 
 
+}).tag('sce8');
 
 
-}).tag('sce5');
-
-
-Scenario("To Buy Products", async ({ I }) => {
+Scenario("Validate To Buy Vegetables Using Without $ Without Promo Code", async ({ I }) => {
 
 
     //Navigate to portal and search vegetables with key letter
@@ -290,11 +328,8 @@ Scenario("To Buy Products", async ({ I }) => {
         TotalAfterDiscount: 155
     }
 
-
     let productsWrapper = await I.grabTextFrom('//div[@class="products-wrapper"]/div[@class="products"]//div');
     console.log(productsWrapper);
-
-
 
     parseInt(await I.orderInfo("Total Amount")).should.eql(placeOrderInfo.TotalAmount);
     (await I.orderInfo("Discount")).should.eql(placeOrderInfo.Discount);
@@ -344,6 +379,4 @@ Scenario("To Buy Products", async ({ I }) => {
     (await I.grabCurrentUrl(endgreet)).should.not.eql(process.env.GREEN_KART);
     I.wait(2);
 
-}).tag('sce6');
-
-
+}).tag('sce9');

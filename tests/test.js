@@ -16,7 +16,15 @@ Scenario("flight search", async ({ I }) => {
     I.see('1 Adult');
     I.selectOption('//label[contains(.,"Currency")]/../..//select', 'AED');
 
-    ////label[text()='Round Trip']/../..//input[@id="ctl00_mainContent_rbtnl_Trip_1"];
+
+
+
+    ///multicity
+
+
+    //div[@id="MultiCityModelPopup"]
+    //a[text()="Ok"]
+
 
 
     I.wait(5);
