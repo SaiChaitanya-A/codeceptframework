@@ -30,62 +30,79 @@ Scenario("Validate login to HROne", async ({ I }) => {
   I.wait(5);
 }).tag("H_sce2");
 
+Scenario("Validate popup", async ({ I, hrone }) => {
+  I.amOnPage(process.env.HR_One);
+  let viewTitle = await I.grabTitle();
+  viewTitle.should.equals("HROne V5");
+  await I.waitForElement("//div/h3", 30);
+  I.see("Welcome!", "//div/h3");
+  I.waitForElement('//h3[@class="ng-star-inserted"]');
 
-Scenario("Validate login to HROne", async ({ I ,hrone}) => {
-    I.amOnPage(process.env.HR_One);
-    let viewTitle = await I.grabTitle();
-    viewTitle.should.equals("HROne V5");
-    await I.waitForElement("//div/h3", 30);
-    I.see("Welcome!", "//div/h3");
-    I.waitForElement('//h3[@class="ng-star-inserted"]');
+  I.loginInput("hrone-username", "9494818569");
+  I.clickText(" NEXT ");
+  I.waitForProcessing();
+  I.loginInput("hrone-password", "Amma@1289");
+  I.clickText(" LOG IN ");
+  I.waitForProcessing();
+
+  //Verifying Web Application and validate Popup
+
+  I.click("May be Later");
+  I.waitForElement('//div[@class="ng-tns-c75-137 p-dialog-content"]');
+  I.click('//h2/..//a[@class="btnclose"]');
+  I.waitForElement('//h2[@class="header-title"]');
+  I.click('//h2/..//a[@class="btnclose"]');
+  I.waitForElement('//div[@class="moodbotInner"]');
+
+  let moodtext = await I.grabTextFrom('//h2[@class="m-0 text-center mb-4"]');
+  console.log(moodtext.trim());
+
+  moodtext
+    .trim()
+    .should.eql(
+      "Hi Avanigadda R K Sai Chaitanya, How was your mood past week?"
+    );
+
+  I.click(
+    '//small[contains(.,"Excellent")]/..//img[@class="mx-auto d-block cursor-pointer ng-star-inserted"]'
+  );
+  I.seeElement('//div[@class="reasonChips mt-4 mb-3"]');
+  I.click('//mat-chip[contains(.,"Work-life balance")]');
+  I.fillField('//textarea[@data-placeholder="Comments"]', "Thanks...");
+  I.seeElement('//mat-checkbox/..//button[text()="SUBMIT"]');
+  I.click('//mat-checkbox/..//button[text()="SUBMIT"]');
+
+  let submitconfrimation = await I.grabTextFrom(
+    '//div[@class="cdk-overlay-pane"]'
+  );
+  console.log(submitconfrimation.trim());
+  submitconfrimation.trim().should.eql("done Record saved successfully.");
+
+  //I.wait(5);
+
+  let url = await I.grabCurrentUrl();
+  url.should.not.eql(process.env.HR_One);
+  url.should.eql(process.env.HR_OneApp);
+
+  I.see("Hi Avanigadda !");
+  I.seeElement('//ul[@class="mini-nav"]');
+  hrone.selecectNavIcon("Home");
+  // hrone.selecectNavIcon("Inbox");
+  //hrone.selecectNavIcon("Request");
+  //hrone.selecectNavIcon("Home");
+
+  await I.waitForText("Hi Avanigadda !", 10);
+  I.see("MARK ATTENDANCE", "//h6");
+  await I.waitForElement( "//div[text()=' Paid Leave ']/../../div[@class='cls-lvlblance']",10);
   
-    I.loginInput("hrone-username", "9494818569");
-    I.clickText(" NEXT ");
-    I.waitForProcessing();
-    I.loginInput("hrone-password", "Amma@1289");
-    I.clickText(" LOG IN ");
-    I.waitForProcessing();
+  let PaidLeave = await I.grabTextFrom(`//div[text()=' Paid Leave ']/../../div[@class='cls-lvlblance']`);
+  console.log(PaidLeave);
+  I.waitForElement("//div[text()=' Reserved Leave ']/../../div[@class='cls-lvlblance']",10);
+  let ReservedLeave = await I.grabTextFrom("//div[text()=' Reserved Leave ']/../../div[@class='cls-lvlblance']");
+  console.log(ReservedLeave);
 
-    //Verifying Web Application and validate Popup
-
-    I.click('May be Later');
-    I.waitForElement('//div[@class="moodbotInner"]');
-
-    let moodtext = await I.grabTextFrom('//h2[@class="m-0 text-center mb-4"]');
-    console.log(moodtext.trim());
-
-    (moodtext.trim()).should.eql("Hi Avanigadda R K Sai Chaitanya, How was your mood past week?");
-
-    I.click('//small[contains(.,"Excellent")]/..//img[@class="mx-auto d-block cursor-pointer ng-star-inserted"]');
-    I.seeElement('//div[@class="reasonChips mt-4 mb-3"]');
-    I.click('//mat-chip[contains(.,"Work-life balance")]');
-    I.fillField('//textarea[@data-placeholder="Comments"]', 'Thanks...');
-    I.seeElement('//mat-checkbox/..//button[text()="SUBMIT"]');
-    I.click('//mat-checkbox/..//button[text()="SUBMIT"]');
-
-
-
-
-    //I.wait(5);
-
-    
-
-    let url = await I.grabCurrentUrl();
-    url.should.not.eql(process.env.HR_One);
-    url.should.eql(process.env.HR_OneApp);
-
-    I.see('Hi Avanigadda !');
-    I.seeElement('//ul[@class="mini-nav"]');
-    hrone.selecectNavIcon("Home");
-    hrone.selecectNavIcon("Inbox");
-    hrone.selecectNavIcon("Request");
-
-
-    //await I.waitForElement('Hi Avanigadda !');
-   // I.see('MARK ATTENDANCE' , '//h6');
-
-    I.wait(5);
-  }).tag("H_sce3");
+  I.wait(5);
+}).tag("H_sce3");
 
 // I.amOnPage('https://app.hrone.cloud/login');
 // await I.waitForElement('//div/h3', 30);

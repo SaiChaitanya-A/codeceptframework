@@ -31,7 +31,7 @@ class FlightBooking extends Helper{
         await this.helpers.Playwright.seeElement(depart5);
         let date = await this.helpers.Playwright.grabValueFrom(depart5);
         console.log(date);
-        date.should.eql("09/11");
+        date.should.eql("11/11");
     }
 
     async searchFlight(){

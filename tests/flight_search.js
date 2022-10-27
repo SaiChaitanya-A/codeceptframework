@@ -117,7 +117,7 @@ Scenario("Validate Multicity Traveloption", async ({ I, flightPage }) => {
     "//label[contains(text(),'Depart date')]/../..//input[@name='ctl00$mainContent$view_date3']"
   );
   console.log(depart2);
-  depart2.should.eql("26/10");
+  depart2.should.eql("28/10");
   flightPage.travelDetailsMulticity("3", "Mumbai (BOM)", "Hyderabad (HYD)");
   // flightPage.selectCalendar("Depart date", "4");
   // flightPage.journyDates("9", "31");
@@ -126,7 +126,7 @@ Scenario("Validate Multicity Traveloption", async ({ I, flightPage }) => {
     "//label[contains(text(),'Depart date')]/../..//input[@name='ctl00$mainContent$view_date4']"
   );
   console.log(depart3);
-  depart3.should.eql("02/11");
+  depart3.should.eql("04/11");
   
 
 
